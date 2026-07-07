@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correctover — MCP Reliability Layer</title>
+    <meta name="description" content="Real-time LLM output validation for Agents. 14.5μs latency. Required(τ) ⊆ Supported(τ).">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #0a0a0a;
+            --surface: #111111;
+            --border: #222222;
+            --text: #fafafa;
+            --text-secondary: #a1a1a1;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.15);
+            --success: #22c55e;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        h1 {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(180deg, #ffffff 0%, #a1a1a1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 3rem;
+        }
+        
+        .hero-metrics {
+            display: flex;
+            gap: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .metric {
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        
+        /* Sections */
+        section {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .section-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            font-size: 1.125rem;
+        }
+        
+        /* Code Block */
+        .code-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            position: relative;
+        }
+        
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff5f57;
+        }
+        
+        .code-block::after {
+            content: '';
+            position: absolute;
+            top: 1rem;
+            left: 2rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #febc2e;
+        }
+        
+        .code-block pre {
+            margin-top: 1.5rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .code-keyword { color: #c084fc; }
+        .code-string { color: #86efac; }
+        .code-comment { color: #6b7280; }
+        
+        /* Architecture */
+        .arch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .arch-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+        
+        .arch-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        
+        .arch-card h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .arch-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Evidence */
+        .evidence-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .evidence-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+        
+        .evidence-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--accent-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .evidence-content h4 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .evidence-content p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .evidence-link {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        .evidence-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* CTA */
+        .cta {
+            text-align: center;
+            padding: 6rem 2rem;
+            background: linear-gradient(180deg, transparent 0%, var(--surface) 100%);
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .cta-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--accent);
+        }
+        
+        /* Footer */
+        footer {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        /* Responsive */
+        @media (max-width: 640px) {
+            .hero-metrics {
+                gap: 2rem;
+            }
+            
+            .metric-value {
+                font-size: 1.5rem;
+            }
+            
+            section {
+                padding: 4rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="badge">
+            <span class="badge-dot"></span>
+            <span>ICLR 2027 — Paper in Review</span>
+        </div>
+        
+        <h1>MCP Reliability Layer</h1>
+        
+        <p class="subtitle">
+            Real-time LLM output validation for Agents.<br>
+            Required(τ) ⊆ Supported(τ).
+        </p>
+        
+        <div class="hero-metrics">
+            <div class="metric">
+                <div class="metric-value">14.5μs</div>
+                <div class="metric-label">Validation Latency</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">80K</div>
+                <div class="metric-label">API Traces Analyzed</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">4+</div>
+                <div class="metric-label">Independent Implementations</div>
+            </div>
+            <div class="metric">
+                <div class="metric-value">12</div>
+                <div class="metric-label">Core Issues Contributed</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Framework -->
+    <section>
+        <h2 class="section-title">The Framework</h2>
+        <p class="section-subtitle">
+            Correctover validates LLM outputs against formal constraints before execution.
+        </p>
+        
+        <div class="code-block">
+            <pre><span class="code-comment">// Core invariant: all validated outputs must satisfy</span>
+<span class="code-keyword">Required</span>(τ) ⊆ <span class="code-keyword">Supported</span>(τ)
+
+<span class="code-comment">// Where:</span>
+<span class="code-comment">//   τ = a single LLM generation task</span>
+<span class="code-comment">//   Required(τ) = outputs the agent needs</span>
+<span class="code-comment">//   Supported(τ) = outputs the model can produce</span>
+
+<span class="code-comment">// Validation at 14.5μs — before tool execution</span>
+<span class="code-keyword">if</span> !validate(output, constraints) {
+    <span class="code-keyword">recover</span>(τ)  <span class="code-comment">// failover or retry</span>
+}</pre>
+        </div>
+    </section>
+
+    <!-- Architecture -->
+    <section>
+        <h2 class="section-title">Five-Component Architecture</h2>
+        <p class="section-subtitle">
+            Modular design. Each component works independently or as a unified system.
+        </p>
+        
+        <div class="arch-grid">
+            <div class="arch-card">
+                <h3>Core Engine</h3>
+                <p>Runtime validation engine. 14.5μs P99 latency. Handles constraint checking, recovery decisions, and state management.</p>
+            </div>
+            <div class="arch-card">
+                <h3>Rules Library</h3>
+                <p>93 fault patterns. Formalized from 80K real API traces. Covers rate limits, overloads, malformed outputs, and edge cases.</p>
+            </div>
+            <div class="arch-card">
+                <h3>LocalGateway</h3>
+                <p>Drop-in replacement for OpenAI/Anthropic SDKs. Zero-config. Runs locally. Open-source for community adoption.</p>
+            </div>
+            <div class="arch-card">
+                <h3>Validator Plugin System</h3>
+                <p>Extensible validation plugins. Write custom validators in Python/TypeScript. Hot-reload without restart.</p>
+            </div>
+            <div class="arch-card">
+                <h3>Adapter Ecosystem</h3>
+                <p>Pre-built adapters for CrewAI, AutoGen, LangGraph, Semantic Kernel. One-line integration.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Evidence -->
+    <section>
+        <h2 class="section-title">Community Convergence</h2>
+        <p class="section-subtitle">
+            Independent implementations of Required(τ) ⊆ Supported(τ) — without Correctover's involvement.
+        </p>
+        
+        <div class="evidence-list">
+            <div class="evidence-item">
+                <div class="evidence-icon">1</div>
+                <div class="evidence-content">
+                    <h4>Preaction Governance Conformance</h4>
+                    <p>Production trading system implementing Required⊆Supported for financial transactions.</p>
+                    <a href="https://github.com/babyblueviper1/preaction-governance-conformance" class="evidence-link" target="_blank">GitHub →</a>
+                </div>
+            </div>
+            <div class="evidence-item">
+                <div class="evidence-icon">2</div>
+                <div class="evidence-content">
+                    <h4>Argentum Core</h4>
+                    <p>Axis 4 Fork-Matrix aligned with Correctover's verification protocol.</p>
+                    <a href="https://github.com/giskard09/argentum-core" class="evidence-link" target="_blank">GitHub →</a>
+                </div>
+            </div>
+            <div class="evidence-item">
+                <div class="evidence-icon">3</div>
+                <div class="evidence-content">
+                    <h4>SINT Protocol (pshkv)</h4>
+                    <p>Physical AI safety layer. Runtime authorization & audit. Adopted Required/Supported framework in autogen#7525.</p>
+                    <a href="https://github.com/pshkv" class="evidence-link" target="_blank">GitHub →</a>
+                </div>
+            </div>
+            <div class="evidence-item">
+                <div class="evidence-icon">4</div>
+                <div class="evidence-content">
+                    <h4>Independent Implementation (autogen#7353)</h4>
+                    <p>Separate engineering effort implementing Required⊆Supported logic for AAR encryption governance.</p>
+                    <a href="https://github.com/microsoft/autogen/issues/7353" class="evidence-link" target="_blank">Issue →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <h2 class="cta-title">The Standard is Emerging</h2>
+        <p class="cta-subtitle">
+            Join the convergence. Read the paper. Integrate the framework.
+        </p>
+        
+        <div class="cta-buttons">
+            <a href="https://arxiv.org" class="btn btn-primary" target="_blank">
+                Read Paper (Coming 7.11)
+            </a>
+            <a href="https://github.com/Correctover" class="btn btn-secondary" target="_blank">
+                GitHub →
+            </a>
+            <a href="mailto:wangguigui@correctover.com" class="btn btn-secondary">
+                Contact
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2026 Correctover Research Group. All rights reserved.</p>
+        <p style="margin-top: 0.5rem;">
+            <a href="https://github.com/Correctover" style="color: var(--text-secondary); text-decoration: none;">GitHub</a>
+            ·
+            <a href="mailto:wangguigui@correctover.com" style="color: var(--text-secondary); text-decoration: none;">Contact</a>
+        </p>
+    </footer>
+</body>
+</html>
