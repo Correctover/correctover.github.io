@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correctover Docs — MCP Reliability Layer</title>
+    <meta name="description" content="Official documentation for Correctover: real-time LLM output validation for Agents.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #0a0a0a;
+            --surface: #111111;
+            --border: #222222;
+            --text: #fafafa;
+            --text-secondary: #a1a1a1;
+            --accent: #3b82f6;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+        
+        /* Header */
+        header {
+            position: sticky;
+            top: 0;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        
+        nav a:hover {
+            color: var(--text);
+        }
+        
+        /* Layout */
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        aside {
+            width: 260px;
+            padding: 2rem 1rem;
+            border-right: 1px solid var(--border);
+            position: sticky;
+            top: 60px;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+        
+        aside h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+        
+        aside ul {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+        
+        aside li a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        aside li a:hover,
+        aside li a.active {
+            background: var(--surface);
+            color: var(--text);
+        }
+        
+        main {
+            flex: 1;
+            padding: 3rem 4rem;
+            max-width: 800px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--surface);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.875em;
+        }
+        
+        pre {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        .callout {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .callout-title {
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        td {
+            color: var(--text-secondary);
+        }
+        
+        @media (max-width: 768px) {
+            aside { display: none; }
+            main { padding: 2rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Correctover <span>Docs</span></div>
+        <nav>
+            <a href="/">Home</a>
+            <a href="https://github.com/Correctover" target="_blank">GitHub</a>
+            <a href="mailto:wangguigui@correctover.com">Contact</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <aside>
+            <h3>Getting Started</h3>
+            <ul>
+                <li><a href="#introduction" class="active">Introduction</a></li>
+                <li><a href="#quickstart">Quickstart</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+            </ul>
+            
+            <h3>Core Concepts</h3>
+            <ul>
+                <li><a href="#validation">Validation Model</a></li>
+                <li><a href="#required-supported">Required ⊆ Supported</a></li>
+                <li><a href="#recovery">Recovery Strategies</a></li>
+            </ul>
+            
+            <h3>Reference</h3>
+            <ul>
+                <li><a href="#api">API Reference</a></li>
+                <li><a href="#configuration">Configuration</a></li>
+                <li><a href="#adapters">Adapters</a></li>
+            </ul>
+        </aside>
+
+        <main>
+            <section id="introduction">
+                <h1>Introduction</h1>
+                <p>
+                    Correctover is a <strong>MCP Reliability Layer</strong> that validates LLM outputs in real-time before execution. 
+                    It ensures that agent actions satisfy formal constraints, preventing failures before they happen.
+                </p>
+                
+                <div class="callout">
+                    <div class="callout-title">Core Invariant</div>
+                    <p>Required(τ) ⊆ Supported(τ)</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.875rem;">
+                        For any task τ, all outputs the agent needs must be within what the model can produce.
+                    </p>
+                </div>
+                
+                <h2>Key Features</h2>
+                <table>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><strong>14.5μs latency</strong></td>
+                        <td>Validation completes before tool execution begins</td>
+                    </tr>
+                    <tr>
+                        <td><strong>93 fault patterns</strong></td>
+                        <td>Derived from 80K real API traces</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Zero-config</strong></td>
+                        <td>Drop-in replacement for OpenAI/Anthropic SDKs</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Framework adapters</strong></td>
+                        <td>CrewAI, AutoGen, LangGraph, Semantic Kernel</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section id="quickstart">
+                <h2>Quickstart</h2>
+                <p>Install via pip:</p>
+                <pre><code>pip install correctover</code></pre>
+                
+                <p>Use as a drop-in replacement:</p>
+                <pre><code>from correctover import Correctover
+
+client = Correctover()
+
+# Same API as OpenAI, but with validation
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Hello"}],
+    constraints={"max_tokens": 100, "temperature": 0.7}
+)
+
+# Output is validated before returning
+print(response.choices[0].message.content)</code></pre>
+            </section>
+
+            <section id="architecture">
+                <h2>Architecture</h2>
+                <p>Correctover consists of five components:</p>
+                
+                <h3>1. Core Engine</h3>
+                <p>Runtime validation engine. Handles constraint checking, recovery decisions, and state management.</p>
+                
+                <h3>2. Rules Library</h3>
+                <p>93 fault patterns formalized from 80K real API traces. Covers rate limits, overloads, malformed outputs.</p>
+                
+                <h3>3. LocalGateway</h3>
+                <p>Drop-in replacement for OpenAI/Anthropic SDKs. Runs locally with zero configuration.</p>
+                
+                <h3>4. Validator Plugin System</h3>
+                <p>Extensible validation plugins. Write custom validators in Python/TypeScript.</p>
+                
+                <h3>5. Adapter Ecosystem</h3>
+                <p>Pre-built adapters for popular agent frameworks. One-line integration.</p>
+            </section>
+
+            <section id="required-supported">
+                <h2>Required(τ) ⊆ Supported(τ)</h2>
+                <p>
+                    The core invariant of Correctover. For any task τ:
+                </p>
+                <ul style="margin-left: 2rem; color: var(--text-secondary);">
+                    <li><strong>Required(τ)</strong>: outputs the agent needs to proceed</li>
+                    <li><strong>Supported(τ)</strong>: outputs the model can produce</li>
+                </ul>
+                <p style="margin-top: 1rem;">
+                    If Required(τ) is not a subset of Supported(τ), the validation fails and recovery is triggered.
+                </p>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
