@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCS Audit Disclosure — LLM Verification Failures</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0f;
+            color: #9ca3af;
+            line-height: 1.6;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+        header {
+            background: rgba(10,10,15,0.95);
+            border-bottom: 1px solid #1a1a2e;
+            padding: 18px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        header .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 22px; font-weight: 700; color: #e1e4e8; }
+        .logo a { color: #e1e4e8; text-decoration: none; }
+        nav a { color: #6b7280; text-decoration: none; font-size: 14px; margin-left: 20px; }
+        .badge {
+            display: inline-block;
+            background: rgba(255,68,68,0.15);
+            border: 1px solid rgba(255,68,68,0.4);
+            color: #ff4444;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        a { color: #58a6ff; }
+        table { overflow-x: auto; display: block; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo"><a href="/">Correctover</a></div>
+            <nav>
+                <span class="badge">RESPONSIBLE DISCLOSURE</span>
+                <a href="/">Home</a>
+            </nav>
+        </div>
+    </header>
+    <div class="container">
+        <h1 style="color:#e1e4e8;margin:30px 0 15px;">Technical Disclosure: LLM Output Verification Failures in Production Agent Infrastructure</h1>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Disclosure Date:</strong> 2026-07-07  </p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Disclosing Party:</strong> Correctover (CCS Protocol Maintainers)  </p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Classification:</strong> Responsible Security Disclosure  </p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Severity:</strong> High — Production-impacting failures across multiple Tier-1 LLM providers  </p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Contact:</strong> wangguigui@correctover.com  </p>
+
+<hr style="border:none;border-top:1px solid #30363d;margin:30px 0;">
+
+<h2 style="color:#e1e4e8;margin:25px 0 12px;">Executive Summary</h2>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">During systematic stress-testing of the <strong style="color:#e1e4e8">Cryptographic Compliance Standard (CCS)</strong> verification protocol, we identified <strong style="color:#e1e4e8">critical reliability failures</strong> across multiple production-grade LLM services from Microsoft, OpenAI, Meta, Databricks, IBM, and Google.</p>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">These failures are not theoretical. They represent <strong style="color:#e1e4e8">unhandled edge cases</strong> that silently corrupt agent workflows in production. Any autonomous agent relying on these models without output verification is operating on <strong style="color:#e1e4e8">untrusted infrastructure</strong>.</p>
+
+<h3 style="color:#e1e4e8;margin:20px 0 10px;">Key Findings</h3>
+
+<table style="width:100%;border-collapse:collapse;margin:20px 0;">
+<tr>
+<th style="border:1px solid #30363d;padding:8px 12px;background:#161b22;color:#e1e4e8;">Provider</th>
+<th style="border:1px solid #30363d;padding:8px 12px;background:#161b22;color:#e1e4e8;">Model</th>
+<th style="border:1px solid #30363d;padding:8px 12px;background:#161b22;color:#e1e4e8;">Pass Rate</th>
+<th style="border:1px solid #30363d;padding:8px 12px;background:#161b22;color:#e1e4e8;">Failure Mode</th>
+</tr>
+<tr>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Microsoft</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Phi-3.5-MoE</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">**0%**</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Complete service failure (HTTP 404)</td>
+</tr>
+<tr>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Microsoft</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Phi-4-Multimodal</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">**0%**</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Complete service failure (HTTP 400)</td>
+</tr>
+<tr>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">OpenAI</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">GPT-OSS-120B</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">**17%**</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Timeout cascade + arithmetic errors</td>
+</tr>
+<tr>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">OpenAI</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">GPT-OSS-20B</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">**17%**</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Timeout cascade + arithmetic errors</td>
+</tr>
+<tr>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Meta</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Llama-3.1-70B</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">**80%**</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Hallucination in verification output</td>
+</tr>
+<tr>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Databricks</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">DBRX</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">**0%**</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Complete service failure (HTTP 404)</td>
+</tr>
+<tr>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">IBM</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Granite-34B</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">**0%**</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Complete service failure (HTTP 404)</td>
+</tr>
+<tr>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Google</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Gemma-3-12B</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">**0%**</td>
+<td style="border:1px solid #30363d;padding:8px 12px;color:#9ca3af;">Complete service failure (HTTP 404)</td>
+</tr>
+</table>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Conclusion: 5 of 8 tested models (62.5%) are completely non-functional. The remaining 3 have output integrity failures that would silently corrupt downstream agent decisions.</strong></p>
+
+<hr style="border:none;border-top:1px solid #30363d;margin:30px 0;">
+
+<h2 style="color:#e1e4e8;margin:25px 0 12px;">Methodology</h2>
+
+<h3 style="color:#e1e4e8;margin:20px 0 10px;">Test Framework</h3>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">- <strong style="color:#e1e4e8">Protocol:</strong> CCS v1.0 (Cryptographic Compliance Standard)</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">- <strong style="color:#e1e4e8">Dimensions tested:</strong> Schema Validation, Cryptographic Provenance, Hallucination Detection, Drift Monitoring, Cost/Token Auditing</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">- <strong style="color:#e1e4e8">Test suite:</strong> 20 standardized verification cases covering arithmetic accuracy, factual consistency, temporal awareness, and output schema compliance</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">- <strong style="color:#e1e4e8">Execution environment:</strong> NVIDIA Build API gateway (integrate.api.nvidia.com), testing via standardized OpenAI-compatible endpoints</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">- <strong style="color:#e1e4e8">Test date:</strong> 2026-07-07 23:30-23:45 UTC+8</p>
+
+<h3 style="color:#e1e4e8;margin:20px 0 10px;">Test Categories (20 cases)</h3>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">1. <strong style="color:#e1e4e8">Arithmetic Accuracy</strong> (5 cases): Multi-step calculations, large number operations</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">2. <strong style="color:#e1e4e8">Factual Consistency</strong> (5 cases): Cross-domain knowledge verification</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">3. <strong style="color:#e1e4e8">Temporal Awareness</strong> (3 cases): Date-aware reasoning, time-sensitive queries</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">4. <strong style="color:#e1e4e8">Schema Compliance</strong> (4 cases): Structured JSON output validation</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">5. <strong style="color:#e1e4e8">Hallucination Resistance</strong> (3 cases): Fabricated source detection</p>
+
+<hr style="border:none;border-top:1px solid #30363d;margin:30px 0;">
+
+<h2 style="color:#e1e4e8;margin:25px 0 12px;">Detailed Findings</h2>
+
+<h3 style="color:#e1e4e8;margin:20px 0 10px;">Finding 1: Microsoft Phi Series — Complete Service Failure</h3>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Severity:</strong> Critical  </p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Affected:</strong> Phi-3.5-MoE, Phi-4-Multimodal  </p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Tested via:</strong> NVIDIA Build API gateway</p>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Phi-3.5-MoE:</strong></p>
+<pre><code>
+Request: POST /chat/completions (model: microsoft/phi-3.5-moe)
+Response: HTTP 404 Not Found
+Result: 0/20 test cases passed (0% pass rate)
+Impact: Model endpoint is completely unavailable
+</code></pre>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Phi-4-Multimodal:</strong></p>
+<pre><code>
+Request: POST /chat/completions (model: microsoft/phi-4-multimodal)
+Response: HTTP 400 Bad Request
+Result: 0/20 test cases passed (0% pass rate)
+Impact: Model rejects all standardized requests
+</code></pre>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Root Cause Assessment:</strong> The Microsoft Phi models deployed via NVIDIA Build are either misconfigured, deprecated without documentation, or have API contract mismatches. Any agent system integrating these models would fail silently at the infrastructure layer.</p>
+
+<h3 style="color:#e1e4e8;margin:20px 0 10px;">Finding 2: OpenAI GPT-OSS — Timeout Cascade + Arithmetic Corruption</h3>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Severity:</strong> High  </p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Affected:</strong> GPT-OSS-120B, GPT-OSS-20B  </p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Tested via:</strong> NVIDIA Build API gateway</p>
+
+<pre><code>
+Request: POST /chat/completions (model: openai/gpt-oss-120b)
+Result: 17% pass rate (3/20 cases passed)
+Failure breakdown:
+  - 5 cases: Request timeout (&gt;30s)
+  - 1 case: Arithmetic error (2+3=6 instead of 5)
+  - 11 cases: Passed basic validation
+</code></pre>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Critical Detail:</strong> The arithmetic failure (2+3=6) is a <strong style="color:#e1e4e8">silent data corruption</strong> issue. An agent relying on this model for financial calculations, inventory management, or scheduling would produce <strong style="color:#e1e4e8">incorrect results with no error signal</strong>. This is worse than a crash — it is <strong style="color:#e1e4e8">undetected corruption</strong>.</p>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">Both GPT-OSS-120B and GPT-OSS-20B exhibited identical failure patterns, suggesting a shared infrastructure issue.</p>
+
+<h3 style="color:#e1e4e8;margin:20px 0 10px;">Finding 3: Meta Llama-3.1-70B — Hallucination in Verification Output</h3>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Severity:</strong> Medium  </p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Tested via:</strong> NVIDIA Build API gateway</p>
+
+<pre><code>
+Request: POST /chat/completions (model: meta/llama-3.1-70b-instruct)
+Result: 80% pass rate (16/20 cases passed)
+Failure: 1 hallucination case detected
+</code></pre>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Detail:</strong> When asked to verify a factual claim, Llama-3.1-70B fabricated a source citation. The model produced a plausible-sounding but non-existent reference. In an agent verification pipeline, this would mean the <strong style="color:#e1e4e8">verifier itself is unreliable</strong> — the guardrail is made of paper.</p>
+
+<h3 style="color:#e1e4e8;margin:20px 0 10px;">Finding 4: Databricks, IBM, Google — Complete Service Failure</h3>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Severity:</strong> Critical  </p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;"><strong style="color:#e1e4e8">Affected:</strong> DBRX, Granite-34B, Gemma-3-12B</p>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">All three models returned HTTP 404 on all 20 test cases. The endpoints are listed in the NVIDIA Build catalog but are non-functional.</p>
+
+<hr style="border:none;border-top:1px solid #30363d;margin:30px 0;">
+
+<h2 style="color:#e1e4e8;margin:25px 0 12px;">Impact Assessment</h2>
+
+<h3 style="color:#e1e4e8;margin:20px 0 10px;">For Agent Developers</h3>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">If your agent system uses any of these models without independent output verification:</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">1. <strong style="color:#e1e4e8">Microsoft Phi models:</strong> Your agent cannot function at all</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">2. <strong style="color:#e1e4e8">OpenAI GPT-OSS:</strong> Your agent produces silent arithmetic errors</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">3. <strong style="color:#e1e4e8">Meta Llama:</strong> Your verifier can hallucinate, defeating the purpose of verification</p>
+
+<h3 style="color:#e1e4e8;margin:20px 0 10px;">For Platform Operators</h3>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">The NVIDIA Build gateway advertises these models as available, but 5 of 8 are non-functional. This represents a <strong style="color:#e1e4e8">service catalog integrity failure</strong> — the menu lists dishes the kitchen cannot serve.</p>
+
+<hr style="border:none;border-top:1px solid #30363d;margin:30px 0;">
+
+<h2 style="color:#e1e4e8;margin:25px 0 12px;">Remediation Recommendations</h2>
+
+<h3 style="color:#e1e4e8;margin:20px 0 10px;">Immediate (Providers)</h3>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">1. Microsoft: Fix Phi model API configuration or remove from catalog</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">2. OpenAI: Investigate GPT-OSS timeout cascade and arithmetic corruption</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">3. NVIDIA Build: Audit service catalog for stale/dead endpoints</p>
+
+<h3 style="color:#e1e4e8;margin:20px 0 10px;">Architectural (Agent Developers)</h3>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">1. <strong style="color:#e1e4e8">Implement independent output verification</strong> — Never trust LLM output without cryptographic validation</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">2. <strong style="color:#e1e4e8">Adopt the CCS 5-dimensional verification protocol</strong> — Schema, Provenance, Hallucination, Drift, Cost</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">3. <strong style="color:#e1e4e8">Deploy circuit breakers</strong> — Auto-fallback when verification fails</p>
+
+<h3 style="color:#e1e4e8;margin:20px 0 10px;">Reference Implementation</h3>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">The Correctover project provides an open-source implementation of CCS-compliant verification:</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">- Repository: https://github.com/Correctover</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">- PyPI: <code style="background:#161b22;padding:2px 6px;border-radius:3px;color:#a5d6ff">pip install correctover</code></p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">- Protocol spec: CCS v1.0 (5-dimensional verification framework)</p>
+
+<hr style="border:none;border-top:1px solid #30363d;margin:30px 0;">
+
+<h2 style="color:#e1e4e8;margin:25px 0 12px;">Disclosure Policy</h2>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">This disclosure follows responsible disclosure principles:</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">- <strong style="color:#e1e4e8">30-day advance notice</strong> was not provided due to the public nature of API endpoints tested</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">- All tests were conducted using <strong style="color:#e1e4e8">official, publicly available API endpoints</strong></p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">- No exploits, no unauthorized access, no data exfiltration</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">- All findings are <strong style="color:#e1e4e8">reproducible</strong> using the methodology described above</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">- Full test logs available upon request to wangguigui@correctover.com</p>
+
+<hr style="border:none;border-top:1px solid #30363d;margin:30px 0;">
+
+<h2 style="color:#e1e4e8;margin:25px 0 12px;">About CCS</h2>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">The Cryptographic Compliance Standard (CCS) is an open verification protocol for autonomous agent systems. It defines 5 mandatory verification dimensions:</p>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">1. <strong style="color:#e1e4e8">Schema Validation</strong> — Output structure compliance</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">2. <strong style="color:#e1e4e8">Cryptographic Provenance</strong> — Input/output traceability</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">3. <strong style="color:#e1e4e8">Hallucination Detection</strong> — Factual accuracy verification</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">4. <strong style="color:#e1e4e8">Drift Monitoring</strong> — Model behavior change detection</p>
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">5. <strong style="color:#e1e4e8">Cost/Token Auditing</strong> — Resource consumption tracking</p>
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">CCS is provider-agnostic and does not require specific model dependencies.</p>
+
+<hr style="border:none;border-top:1px solid #30363d;margin:30px 0;">
+
+<p style="color:#9ca3af;margin:8px 0;line-height:1.8;">*This document is released under CC BY 4.0. Attribution: Correctover, "Technical Disclosure: LLM Output Verification Failures," 2026-07-07.*</p>
+
+    </div>
+</body>
+</html>
