@@ -149,3 +149,5 @@ Full responsible disclosure: [correctover.github.io/disclosures](https://correct
 <p align="center">
   <em>Correctover doesn't failover. Correctover verifies.</em>
 </p>
+
+<!-- rebuild trigger 2026-07-08 -->
