@@ -1,0 +1,7 @@
+# Jekyll configuration
+include:
+  - disclosures
+  
+# Disable Jekyll processing for HTML files in disclosures (serve as-is)
+exclude:
+  - README.md
