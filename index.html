@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Correctover — The Industry Standard for LLM Output Verification</title>
-    <meta name="description" content="Verify your Agent Infrastructure. Get your CCS Compliance Grade. The LLM output verification standard for production agent systems.">
+    <meta name="description" content="Correctover is the runtime security layer for the MCP ecosystem. MCP server for agent fault diagnosis, self-healing, and CCS compliance. 215 fault patterns, 97.4% auto-repair rate, 22μs P50 latency. Free 50 calls/day.Verify your Agent Infrastructure. Get your CCS Compliance Grade. The LLM output verification standard for production agent systems.">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -282,6 +282,131 @@
             .wall-table { font-size: 12px; }
         }
     </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://correctover.com/#organization",
+      "name": "Correctover",
+      "url": "https://correctover.com",
+      "description": "The runtime security layer for the MCP ecosystem. First MCP server for agent fault diagnosis and self-healing.",
+      "foundingDate": "2025",
+      "founder": {
+        "@type": "Person",
+        "name": "Correctover"
+      },
+      "sameAs": [
+        "https://github.com/Correctover",
+        "https://smithery.ai/servers/correctover/correctover",
+        "https://glama.ai/mcp/servers/Correctover/mcp-server",
+        "https://www.npmjs.com/package/correctover-mcp-server",
+        "https://pypi.org/project/correctover/"
+      ]
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://correctover.com/#software",
+      "name": "Correctover MCP Server",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Any",
+      "description": "MCP Runtime Security & Agent Fault Diagnosis. 215 fault patterns, 19 CVEs, 97.4% self-heal rate, 22\u03bcs P50 latency.",
+      "url": "https://correctover.com",
+      "version": "1.4.0",
+      "license": "https://www.apache.org/licenses/LICENSE-2.0",
+      "downloadUrl": "https://www.npmjs.com/package/correctover-mcp-server",
+      "installUrl": "https://smithery.ai/servers/correctover/correctover",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Free",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "50 calls/day, no credit card"
+        },
+        {
+          "@type": "Offer",
+          "name": "Starter",
+          "price": "49",
+          "priceCurrency": "USD",
+          "billingPeriod": "month"
+        },
+        {
+          "@type": "Offer",
+          "name": "Pro",
+          "price": "199",
+          "priceCurrency": "USD",
+          "billingPeriod": "month"
+        },
+        {
+          "@type": "Offer",
+          "name": "Team",
+          "price": "499",
+          "priceCurrency": "USD",
+          "billingPeriod": "month"
+        }
+      ],
+      "publisher": {
+        "@id": "https://correctover.com/#organization"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Correctover?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Correctover is the runtime security layer for the MCP (Model Context Protocol) ecosystem. It validates LLM outputs in real-time, blocks injection attacks, prevents credential hijacking, and auto-recovers from failures at 22\u03bcs P50 latency."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does Correctover differ from LiteLLM or Portkey?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "LiteLLM and Portkey are upstream routing and proxy layers. Correctover sits at the runtime security layer \u2014 it validates outputs, diagnoses faults, and auto-repairs them. They are complementary, not competing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is CCS?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "CCS (Runtime Security Conformance Standard) is the neutral, open industry standard for MCP runtime security conformance. Correctover is the reference implementation."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What fault patterns does Correctover detect?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "215 patterns across 19 categories including tool call timeouts, auth errors, schema violations, rate limits, provider outages, RCE attempts, SSRF attacks, and credential hijacking."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much does Correctover cost?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Free tier: 50 calls/day. Starter: $49/month (5,000 calls). Pro: $199/month (25,000 calls). Team: $499/month. Enterprise: custom pricing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Correctover open source?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The core engine is open source under Apache 2.0. Enterprise features include private deployment, custom fault database, and SLA guarantees."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
     <header>
