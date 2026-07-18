@@ -1,0 +1,83 @@
+# Correctover
+
+> We are the runtime security layer for the MCP ecosystem.
+
+Correctover is the first MCP server purpose-built for agent fault diagnosis and self-healing. It monitors tool calls across LLM providers, detects failures in real-time, and auto-repairs them using a knowledge base of 215 fault patterns and 19 CVEs — all at 22μs P50 latency.
+
+## What It Does
+
+- **Fault Diagnosis**: Instantly diagnose why your agent's tool call failed — timeout, auth, schema, rate limit, provider down
+- **Auto Self-Healing**: 97.4% of detected faults are automatically repaired with zero human intervention
+- **Multi-Provider Failover**: Seamlessly failover across 9+ LLM providers when one goes down
+- **Fault Pattern Matching**: Match errors against 215 known fault patterns from 80,000+ empirical data points
+- **Runtime Security**: Intercept RCE, SSRF, and cloud credential hijacking attempts at the MCP layer
+- **CCS Compliance**: Implement the Conformance Conformance Standard for MCP runtime security
+
+## Key Metrics
+
+- 215 cataloged fault patterns across 32 MCP frameworks
+- 19 CVEs documented
+- 97.4% auto self-heal rate
+- 22μs P50 latency overhead
+- 80,000+ empirical data points
+- 9+ LLM providers supported (OpenAI, Anthropic, DeepSeek, Groq, Qwen, GLM, SiliconFlow, Together, Moonshot)
+
+## Tools (MCP Server)
+
+- `scan` — Run 6-dimension security scan on MCP tool calls
+- `diagnose` — Diagnose why a tool call failed with root cause analysis
+- `fault_library` — Browse 215 cataloged fault patterns
+- `recovery` — Get auto-repair suggestions for detected faults
+- `providers` — View supported LLM providers and their status
+- `stats` — Session metrics: calls, validation rate, failover count
+
+## Pricing
+
+- Free: 50 calls/day, no credit card
+- Starter: $49/month (5,000 calls)
+- Pro: $199/month (25,000 calls)
+- Team: $499/month (100,000 calls)
+- Enterprise: Custom pricing
+
+## Install
+
+### Smithery (hosted, no install needed)
+Connect via Smithery: https://smithery.ai/servers/correctover/correctover
+
+### npm
+```
+npx -y correctover-mcp-server
+```
+
+### PyPI
+```
+pip install correctover
+```
+
+## Links
+
+- Website: https://correctover.com
+- GitHub: https://github.com/Correctover/mcp-server
+- Smithery: https://smithery.ai/servers/correctover/correctover
+- Glama: https://glama.ai/mcp/servers/Correctover/mcp-server
+- npm: https://www.npmjs.com/package/correctover-mcp-server
+- PyPI: https://pypi.org/project/correctover/
+- Whitepaper (DOI): https://doi.org/10.5281/zenodo.21405206
+- CCS Standard: https://correctover.com/docs/ccs-standard.html
+
+## FAQ
+
+### What is Correctover?
+Correctover is the runtime security layer for the MCP (Model Context Protocol) ecosystem. It validates LLM outputs in real-time, blocks injection attacks, prevents credential hijacking, and auto-recovers from failures at 22μs P50 latency.
+
+### How does it differ from LiteLLM or Portkey?
+LiteLLM and Portkey are upstream routing/proxy layers. Correctover sits at the runtime security layer — it validates outputs, diagnoses faults, and auto-repairs them. We are complementary, not competing.
+
+### What is CCS?
+CCS (Conformance Conformance Standard) is the neutral, open industry standard for MCP runtime security conformance. Correctover is the reference implementation.
+
+### Is it open source?
+The core engine is open source under Apache 2.0. Enterprise features include private deployment, custom fault DB, and SLA.
+
+### What fault patterns does it detect?
+215 patterns across 19 categories including: tool call timeouts, auth errors, schema violations, rate limits, provider outages, RCE attempts, SSRF attacks, credential hijacking, and more.
