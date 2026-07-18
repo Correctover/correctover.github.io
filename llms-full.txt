@@ -1,0 +1,94 @@
+# Correctover - MCP Runtime Security
+
+> The runtime security layer for the MCP ecosystem.
+
+## What is Correctover
+
+Correctover is the official reference implementation of CCS (Runtime Security Conformance Standard for MCP). It provides real-time security verification for MCP servers and tools, blocking RCE, SSRF, and cloud credential hijacking attacks with 22μs P50 latency.
+
+## Core Capabilities
+
+### 1. CCS Standard
+CCS (Runtime Security Conformance Standard for MCP) is a neutral, open industry standard for MCP runtime security. It defines:
+- Input validation rules for tool calls
+- Output verification protocols
+- Fault classification taxonomy (215 fault modes, 19 CVEs)
+- Recovery and failover mechanisms
+
+### 2. Correctover SDK
+- **Runtime verification**: Validates MCP server/tool behavior in real-time
+- **Fault diagnosis**: Identifies and classifies MCP failures automatically
+- **Self-healing**: 97.4% auto-recovery rate with 22μs P50 latency
+- **Provider failover**: Automatic switching when providers fail
+
+### 3. Fault Database
+- 215 documented MCP fault modes
+- 19 assigned CVEs
+- 80,000+ real-world fault records
+- 97.4% self-healing success rate
+
+## Installation
+
+```bash
+# PyPI
+pip install correctover
+
+# NPM
+npm install correctover
+```
+
+## Usage
+
+```python
+from correctover import CCSEngine
+
+engine = CCSEngine()
+result = await engine.scan(server_config)
+diagnosis = await engine.diagnose(fault_id)
+recovery = await engine.recover(fault_id)
+```
+
+## Key Metrics (Verified)
+
+| Metric | Value |
+|--------|-------|
+| Monthly downloads | 5,144+ (PyPI + NPM) |
+| Fault modes cataloged | 215 |
+| CVEs assigned | 19 |
+| Self-healing rate | 97.4% |
+| P50 verification latency | 22μs |
+| Independent validation | 120K+ runs |
+
+## Integration
+
+Available on major MCP platforms:
+- **Smithery**: https://smithery.ai/servers/correctover/correctover (Official, all-A rating)
+- **Glama**: Listed with Official badge, all-A scores
+- **MCP Registry**: Registered
+- **npm**: correctover
+
+## Pricing
+
+- **Community**: Free open-source CCS standard + SDK
+- **Audit Service**: $299 CCS compliance audit package
+- **Enterprise**: Custom deployment with SLA
+
+## Documentation
+
+- Website: https://correctover.com
+- GitHub: https://github.com/Correctover
+- White Paper: DOI 10.5281/zenodo.21405206
+- CCS Standard: https://correctover.com/ccs
+
+## Security Advisories
+
+We coordinate disclosure through GitHub Security Advisories. See our security policy for details.
+
+## Contact
+
+- Official Email: wangguigui@correctover.com
+- GitHub Issues: https://github.com/Correctover/mcp-server/issues
+
+## License
+
+Open-source under MIT License.
