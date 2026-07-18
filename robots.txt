@@ -1,7 +1,12 @@
+# Correctover - Allow all AI search engine crawlers
 User-agent: *
 Allow: /
 
+# AI Search Engine Bots - Explicitly Allowed
 User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
 Allow: /
 
 User-agent: ClaudeBot
@@ -13,10 +18,14 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-User-agent: Googlebot
+User-agent: meta-externalagent
 Allow: /
 
-User-agent: Bingbot
+User-agent: Bytespider
 Allow: /
 
+User-agent: cohere-ai
+Allow: /
+
+# Sitemap
 Sitemap: https://correctover.com/sitemap.xml
