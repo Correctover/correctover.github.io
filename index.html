@@ -1,308 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Correctover — MCP Runtime Security</title>
-    <meta name="description" content="Correctover is the runtime security layer for the MCP ecosystem. Open-source CCS standard reference implementation. 215 fault patterns, 19 CVEs, 97.4% self-healing rate, 22μs P50 latency. Available on Smithery, Glama, PyPI, NPM.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Correctover — AI Runtime Security · Real-time RCE/SSRF/Credential Protection</title>
+<meta name="description" content="Correctover intercepts RCE, SSRF, and cloud credential exfiltration in 14.5µs. Bounty-grade detection rules, CCS compliance reporting, and zero-config deployment for production AI and cloud environments.">
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Correctover — MCP Runtime Security">
-    <meta property="og:description" content="The runtime security layer for the MCP ecosystem. Open-source CCS standard reference implementation with 215 fault patterns, 97.4% self-healing rate, 22μs latency.">
-    <meta property="og:url" content="https://correctover.com">
-    <meta property="og:site_name" content="Correctover">
-    <meta property="og:locale" content="en_US">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Correctover — MCP Runtime Security">
-    <meta name="twitter:description" content="The runtime security layer for the MCP ecosystem. 215 fault patterns, 19 CVEs, 97.4% self-healing, 22μs latency.">
-    
-    <!-- Canonical -->
-    <link rel="canonical" href="https://correctover.com/">
-    
-    <!-- AI Engine Discovery -->
-    <meta name="ai:purpose" content="MCP runtime security verification, fault diagnosis, self-healing, CCS compliance auditing">
-    <link rel="llms" href="/llms.txt">
-    <link rel="llms-full" href="/llms_full.txt">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: #0a0a0f;
-        }
-        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Correctover — AI Runtime Security">
+<meta property="og:description" content="Real-time RCE/SSRF/Credential Protection at 14.5µs. Bounty-grade detection across 8 AI frameworks.">
+<meta property="og:url" content="https://correctover.com">
+<meta property="og:site_name" content="Correctover">
+<meta property="og:locale" content="en_US">
 
-        /* Nav */
-        header {
-            background: rgba(10,10,15,0.95);
-            border-bottom: 1px solid #1a1a2e;
-            padding: 18px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-        header .container { display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 22px; font-weight: 700; color: #e1e4e8; letter-spacing: -0.5px; }
-        nav a { margin-left: 28px; color: #6b7280; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
-        nav a:hover { color: #e1e4e8; }
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Correctover — AI Runtime Security">
+<meta name="twitter:description" content="Real-time RCE/SSRF/Credential Protection at 14.5µs. Bounty-grade detection across 8 AI frameworks.">
 
-        /* Hero */
-        .hero {
-            padding: 100px 0 60px;
-            text-align: center;
-            border-bottom: 1px solid #1a1a2e;
-        }
-        .status-bar {
-            display: inline-block;
-            background: rgba(255,68,68,0.15);
-            border: 1px solid rgba(255,68,68,0.4);
-            color: #ff4444;
-            padding: 10px 24px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            margin-bottom: 40px;
-            animation: glow 3s ease-in-out infinite;
-        }
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 10px rgba(255,68,68,0.2); }
-            50% { box-shadow: 0 0 25px rgba(255,68,68,0.4); }
-        }
-        .hero h1 {
-            font-size: 52px;
-            font-weight: 800;
-            color: #e1e4e8;
-            margin-bottom: 16px;
-            letter-spacing: -1px;
-        }
-        .hero .tagline {
-            font-size: 20px;
-            color: #9ca3af;
-            margin-bottom: 40px;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .install-box {
-            background: #161b22;
-            border: 1px solid #30363d;
-            padding: 16px 32px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 20px;
-            display: inline-block;
-            margin-bottom: 30px;
-            color: #a5d6ff;
-        }
-        .install-box .prompt { color: #7ee787; }
-        .cta-group { margin-top: 20px; }
-        .btn {
-            display: inline-block;
-            padding: 12px 28px;
-            margin: 5px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 15px;
-            transition: all 0.2s;
-        }
-        .btn-primary { background: #e1e4e8; color: #0a0a0f; }
-        .btn-primary:hover { background: #fff; transform: translateY(-1px); }
-        .btn-ghost { background: transparent; color: #9ca3af; border: 1px solid #30363d; }
-        .btn-ghost:hover { color: #e1e4e8; border-color: #6b7280; }
+<!-- Canonical -->
+<link rel="canonical" href="https://correctover.com/">
 
-        /* Sections */
-        section { padding: 80px 0; border-bottom: 1px solid #1a1a2e; }
-        section h2 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            text-align: center;
-            color: #e1e4e8;
-        }
-        .section-sub {
-            text-align: center;
-            color: #6b7280;
-            font-size: 16px;
-            margin-bottom: 50px;
-        }
-
-        /* Wall of Shame / Compliance Matrix */
-        .wall-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        .wall-table th {
-            background: #161b22;
-            color: #9ca3af;
-            padding: 12px 16px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 2px solid #30363d;
-        }
-        .wall-table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid #1a1a2e;
-            color: #9ca3af;
-            font-size: 14px;
-        }
-        .wall-table tr:hover td { background: rgba(255,255,255,0.02); }
-        .score-bar {
-            display: inline-block;
-            height: 6px;
-            border-radius: 3px;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
-        .level-broken { color: #ff4444; font-weight: 700; font-family: monospace; }
-        .level-noncompliant { color: #f97316; font-weight: 700; font-family: monospace; }
-        .level-conditional { color: #eab308; font-weight: 700; font-family: monospace; }
-        .level-certified { color: #22c55e; font-weight: 700; font-family: monospace; }
-
-        .verdict-box {
-            text-align: center;
-            margin-top: 40px;
-            padding: 30px;
-            background: rgba(255,68,68,0.05);
-            border: 1px solid rgba(255,68,68,0.2);
-            border-radius: 8px;
-        }
-        .verdict-number { font-size: 56px; font-weight: 800; color: #ff4444; }
-        .verdict-text { color: #6b7280; font-size: 16px; margin-top: 8px; }
-
-        /* Terminal */
-        .terminal {
-            background: #0d1117;
-            border: 1px solid #1a1a2e;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
-        .terminal-bar {
-            background: #161b22;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid #1a1a2e;
-        }
-        .dot { width: 12px; height: 12px; border-radius: 50%; }
-        .dot-r { background: #ff5f56; }
-        .dot-y { background: #ffbd2e; }
-        .dot-g { background: #27c93f; }
-        .terminal-bar span { color: #484f58; font-size: 13px; margin-left: 8px; font-family: monospace; }
-        .terminal-body {
-            padding: 24px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 1.9;
-            overflow-x: auto;
-            color: #8b949e;
-        }
-        .t-red { color: #ff4444; font-weight: bold; }
-        .t-yellow { color: #eab308; }
-        .t-green { color: #22c55e; }
-        .t-blue { color: #58a6ff; }
-        .t-dim { color: #484f58; }
-
-        /* Dimensions Grid */
-        .dim-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 16px;
-        }
-        .dim-card {
-            background: #161b22;
-            border: 1px solid #1a1a2e;
-            padding: 24px 16px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .dim-card .dim-label {
-            font-size: 24px;
-            font-weight: 800;
-            color: #58a6ff;
-            margin-bottom: 8px;
-        }
-        .dim-card h4 { font-size: 13px; color: #e1e4e8; margin-bottom: 6px; }
-        .dim-card p { font-size: 12px; color: #6b7280; }
-
-        /* Code */
-        .code-block {
-            background: #0d1117;
-            border: 1px solid #1a1a2e;
-            padding: 24px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.7;
-            overflow-x: auto;
-            color: #8b949e;
-        }
-        .code-block .kw { color: #ff7b72; }
-        .code-block .str { color: #a5d6ff; }
-        .code-block .fn { color: #d2a8ff; }
-        .code-block .cm { color: #484f58; }
-
-        /* Components */
-        .comp-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 16px;
-        }
-        .comp-card {
-            background: #161b22;
-            border: 1px solid #1a1a2e;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            border-top: 2px solid #58a6ff;
-        }
-        .comp-card h4 { font-size: 14px; color: #e1e4e8; margin-bottom: 8px; }
-        .comp-card p { font-size: 12px; color: #6b7280; }
-
-        /* CTA */
-        .cta-section {
-            text-align: center;
-            background: linear-gradient(180deg, #0a0a0f 0%, #0f1219 100%);
-        }
-        .cta-section h2 { color: #e1e4e8; }
-        .cta-section p { color: #6b7280; font-size: 17px; max-width: 600px; margin: 0 auto 30px; }
-        .cta-highlight {
-            color: #ff4444;
-            font-weight: 700;
-            font-size: 18px;
-        }
-
-        /* Footer */
-        footer {
-            padding: 40px 0;
-            text-align: center;
-            border-top: 1px solid #1a1a2e;
-        }
-        footer p { color: #484f58; font-size: 13px; }
-        footer a { color: #58a6ff; text-decoration: none; margin: 0 12px; }
-        footer a:hover { text-decoration: underline; }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 32px; }
-            .dim-grid, .comp-grid { grid-template-columns: repeat(2, 1fr); }
-            .wall-table { font-size: 12px; }
-        }
-    </style>
+<!-- AI Engine Discovery -->
+<meta name="ai:purpose" content="AI runtime security, real-time attack interception, RCE/SSRF protection, CCS compliance auditing">
+<link rel="llms" href="/llms.txt">
+<link rel="llms-full" href="/llms_full.txt">
+<style>
+:root {
+  --bg: #08080f;
+  --surface: #0d0d1a;
+  --surface2: #111122;
+  --surface3: #161630;
+  --border: #1a1a2e;
+  --border-light: #282848;
+  --text: #e8e8f0;
+  --muted: #606080;
+  --muted-light: #8080a0;
+  --cyan: #00d4b0;
+  --cyan-dim: rgba(0,212,176,0.08);
+  --red: #ff4466;
+  --red-dim: rgba(255,68,102,0.08);
+  --amber: #ffaa33;
+  --amber-dim: rgba(255,170,51,0.1);
+  --radius: 6px;
+  --radius-lg: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+section { padding: 100px 0; }
+h2 { font-size: 36px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 16px; line-height: 1.2; }
+h2 .highlight { color: var(--cyan); }
+p { color: var(--muted); font-size: 16px; max-width: 640px; margin-bottom: 16px; }
+p.large { font-size: 18px; max-width: 700px; }
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.btn {
+  display: inline-block; padding: 12px 28px; border-radius: var(--radius); font-size: 15px;
+  font-weight: 600; cursor: pointer; transition: all 0.15s; border: none; font-family: inherit;
+}
+.btn-primary { background: var(--cyan); color: #08080f; }
+.btn-primary:hover { opacity: 0.85; text-decoration: none; color: #08080f; }
+.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border-light); }
+.btn-outline:hover { border-color: var(--cyan); text-decoration: none; }
+.section-label {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 2px;
+  color: var(--muted); margin-bottom: 12px; font-weight: 600;
+}
+/* Header */
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(8,8,15,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+nav {
+  max-width: 1100px; margin: 0 auto; padding: 0 24px;
+  height: 56px; display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-weight: 700; font-size: 18px; color: var(--text); letter-spacing: -0.3px; }
+.logo em { font-style: normal; color: var(--cyan); }
+.nav-links { display: flex; gap: 24px; align-items: center; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); text-decoration: none; }
+.nav-links .btn-small {
+  padding: 6px 14px; border-radius: var(--radius); font-size: 13px; font-weight: 600;
+  background: var(--cyan); color: #08080f; transition: opacity 0.15s;
+}
+.nav-links .btn-small:hover { opacity: 0.9; color: #08080f; }
+/* Hero */
+.hero {
+  padding: 150px 0 80px; border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0; opacity: 0.12; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridMove 8s linear infinite;
+}
+@keyframes gridMove { 0% { transform: translate(0,0); } 100% { transform: translate(60px,60px); } }
+.hero .brand-tag {
+  display: inline-block; font-size: 13px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--cyan); margin-bottom: 24px;
+  padding: 6px 14px; border: 1px solid var(--cyan-dim); border-radius: 20px;
+  background: var(--cyan-dim); position: relative; z-index: 1;
+}
+.hero h1 {
+  font-size: clamp(36px, 5vw, 56px); font-weight: 800; letter-spacing: -1.5px;
+  line-height: 1.1; margin-bottom: 20px; max-width: 850px; position: relative; z-index: 1;
+}
+.hero .subtitle {
+  font-size: 18px; color: var(--muted); max-width: 650px; margin-bottom: 32px; line-height: 1.7;
+  position: relative; z-index: 1;
+}
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; position: relative; z-index: 1; }
+/* Stats bar */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  background: var(--border); border-radius: var(--radius-lg); overflow: hidden;
+  margin: -40px auto 0; max-width: 900px; position: relative; z-index: 2;
+}
+.stat-cell {
+  background: var(--surface); padding: 28px 20px; text-align: center;
+}
+.stat-cell .num { font-size: 28px; font-weight: 800; color: var(--cyan); display: block; }
+.stat-cell .label { font-size: 12px; color: var(--muted-light); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+.stat-cell .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+/* Feature grid */
+.features { border-bottom: 1px solid var(--border); }
+.features .grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px;
+}
+.feature-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 32px 24px; transition: border-color 0.2s;
+}
+.feature-card:hover { border-color: var(--border-light); }
+.feature-card .icon { font-size: 32px; margin-bottom: 16px; display: block; }
+.feature-card h3 { font-size: 18px; margin-bottom: 8px; }
+.feature-card p { font-size: 14px; margin-bottom: 0; }
+.feature-card .tag {
+  display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 8px;
+  border-radius: 4px; margin-bottom: 12px; letter-spacing: 0.5px;
+}
+.tag-bounty { background: var(--red-dim); color: var(--red); }
+.tag-perf { background: var(--cyan-dim); color: var(--cyan); }
+.tag-comp { background: var(--amber-dim); color: var(--amber); }
+/* Vulnerability table */
+.vuln-table {
+  width: 100%; border-collapse: collapse; margin-top: 32px;
+  font-size: 14px;
+}
+.vuln-table th {
+  text-align: left; padding: 10px 14px; color: var(--muted); font-weight: 600;
+  font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+  border-bottom: 1px solid var(--border);
+}
+.vuln-table td {
+  padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text);
+}
+.vuln-table .severity {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+}
+.sev-critical { background: var(--red-dim); color: var(--red); }
+.sev-high { background: var(--amber-dim); color: var(--amber); }
+/* CTA section */
+.cta-section {
+  text-align: center; padding: 100px 0;
+  border-bottom: 1px solid var(--border);
+}
+.cta-section h2 { max-width: 700px; margin: 0 auto 16px; }
+.cta-section p { margin: 0 auto 32px; }
+.cta-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+/* Footer */
+footer {
+  padding: 40px 0; text-align: center; color: var(--muted); font-size: 13px;
+}
+footer a { color: var(--muted-light); }
+footer a:hover { color: var(--text); text-decoration: none; }
+/* Responsive */
+@media (max-width: 768px) {
+  .stats-bar { grid-template-columns: repeat(2, 1fr); }
+  .features .grid { grid-template-columns: 1fr; }
+  .nav-links a:not(.btn-small) { display: none; }
+}
+</style>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -312,12 +205,8 @@
       "@id": "https://correctover.com/#organization",
       "name": "Correctover",
       "url": "https://correctover.com",
-      "description": "The runtime security layer for the MCP ecosystem. Open-source CCS (Runtime Security Conformance Standard) reference implementation. Provides real-time security verification, fault diagnosis, and self-healing for MCP servers and tools.",
+      "description": "AI Runtime Security platform — real-time RCE, SSRF, and credential exfiltration protection at 14.5µs. Bounty-grade detection validated across 8 AI frameworks.",
       "foundingDate": "2025",
-      "founder": {
-        "@type": "Person",
-        "name": "Correctover"
-      },
       "sameAs": [
         "https://github.com/Correctover",
         "https://smithery.ai/servers/correctover/correctover",
@@ -328,101 +217,16 @@
     },
     {
       "@type": "SoftwareApplication",
-      "@id": "https://correctover.com/#software",
-      "name": "Correctover MCP Server",
+      "name": "Correctover AI Runtime Security",
       "applicationCategory": "SecurityApplication",
       "operatingSystem": "Any",
-      "description": "MCP Runtime Security & Agent Fault Diagnosis. 215 fault patterns, 19 CVEs, 97.4% self-heal rate, 22\u03bcs P50 latency.",
+      "description": "Real-time runtime attack interception with 24 CCS-certified detection rules. P50 14.5µs, P99 99µs latency. Protects against RCE, SSRF, path traversal, and credential exfiltration.",
       "url": "https://correctover.com",
       "version": "1.4.0",
       "license": "https://www.apache.org/licenses/LICENSE-2.0",
-      "downloadUrl": "https://www.npmjs.com/package/correctover-mcp-server",
-      "installUrl": "https://smithery.ai/servers/correctover/correctover",
       "offers": [
-        {
-          "@type": "Offer",
-          "name": "Free",
-          "price": "0",
-          "priceCurrency": "USD",
-          "description": "50 calls/day, no credit card"
-        },
-        {
-          "@type": "Offer",
-          "name": "Starter",
-          "price": "49",
-          "priceCurrency": "USD",
-          "billingPeriod": "month"
-        },
-        {
-          "@type": "Offer",
-          "name": "Pro",
-          "price": "199",
-          "priceCurrency": "USD",
-          "billingPeriod": "month"
-        },
-        {
-          "@type": "Offer",
-          "name": "Team",
-          "price": "499",
-          "priceCurrency": "USD",
-          "billingPeriod": "month"
-        }
-      ],
-      "publisher": {
-        "@id": "https://correctover.com/#organization"
-      }
-    },
-    {
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "What is Correctover?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Correctover is the runtime security layer for the MCP (Model Context Protocol) ecosystem. It validates LLM outputs in real-time, blocks injection attacks, prevents credential hijacking, and auto-recovers from failures at 22\u03bcs P50 latency."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How does Correctover differ from LiteLLM or Portkey?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "LiteLLM and Portkey are upstream routing and proxy layers. Correctover sits at the runtime security layer \u2014 it validates outputs, diagnoses faults, and auto-repairs them. They are complementary, not competing."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What is CCS?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "CCS (Runtime Security Conformance Standard) is the neutral, open industry standard for MCP runtime security conformance. Correctover is the reference implementation."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What fault patterns does Correctover detect?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "215 patterns across 19 categories including tool call timeouts, auth errors, schema violations, rate limits, provider outages, RCE attempts, SSRF attacks, and credential hijacking."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How much does Correctover cost?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Free tier: 50 calls/day. Starter: $49/month (5,000 calls). Pro: $199/month (25,000 calls). Team: $499/month. Enterprise: custom pricing."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Is Correctover open source?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "The core engine is open source under Apache 2.0. Enterprise features include private deployment, custom fault database, and SLA guarantees."
-          }
-        }
+        {"@type": "Offer", "name": "Free Trial", "price": "0", "priceCurrency": "USD", "description": "7-day full-featured trial"},
+        {"@type": "Offer", "name": "Professional", "price": "48000", "priceCurrency": "USD", "priceType": "annual"}
       ]
     }
   ]
@@ -430,341 +234,158 @@
 </script>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="logo">Correctover</div>
-            <nav>
-                <a href="#matrix">Compliance Matrix</a>
-                <a href="#scanner">Scanner</a>
-                <a href="#protocol">Protocol</a>
-                <a href="#integration">Integration</a>
-            </nav>
-        </div>
-    </header>
 
-    <!-- Hero -->
-    <section class="hero">
-        <div class="container">
-            <div class="status-bar">[ CCS Status: ⚠️ NON_COMPLIANT ]</div>
-            <h1>The Industry Standard for<br>LLM Output Verification</h1>
-            <p class="tagline">Don't guess if your agent is hallucinating.<br>Verify it against the Cryptographic Compliance Standard.</p>
-            <div class="install-box">
-                <span class="prompt">$</span> pip install correctover
-            </div>
-            <div class="cta-group">
-                <a href="https://doi.org/10.5281/zenodo.21234580" class="btn btn-primary">Read Specification</a>
-                <a href="https://github.com/Correctover/standards" class="btn btn-ghost">View CCS Protocol</a>
-            </div>
-        </div>
-    </section>
+<header>
+<nav>
+  <div class="logo">correct<em>over</em></div>
+  <div class="nav-links">
+    <a href="#features">Product</a>
+    <a href="#findings">Findings</a>
+    <a href="#pricing">Pricing</a>
+    <a href="https://github.com/Correctover/correctover.github.io">GitHub</a>
+    <a href="https://github.com/Correctover/correctover.github.io/blob/main/docs/index.html" class="btn-small">Get Started</a>
+  </div>
+</nav>
+</header>
 
-    <!-- Compliance Matrix / Wall -->
-    <section id="matrix">
-        <div class="container">
-            <h2>CCS Compliance Matrix</h2>
-            <p class="section-sub">20,299 real production responses. 7 models. 6 providers. One standard.</p>
+<!-- Hero -->
+<section class="hero">
+<div class="hero-bg"></div>
+<div class="container">
+  <div class="brand-tag">🔬 Bounty-Grade Runtime Security</div>
+  <h1>Real-time RCE, SSRF &amp; Credential Protection — in 14.5 &mu;s</h1>
+  <p class="subtitle">
+    Correctover intercepts critical runtime attacks before they execute.
+    Powered by 24 CCS-certified detection rules validated across 8 AI frameworks
+    and 7 attack surfaces. Zero-config, zero-dependency, deploy in 30 seconds.
+  </p>
+  <div class="hero-actions">
+    <a href="https://github.com/Correctover/correctover.github.io/blob/main/docs/index.html" class="btn btn-primary">Get Started Free →</a>
+    <a href="https://github.com/Correctover" class="btn btn-outline" target="_blank">View on GitHub</a>
+  </div>
+</div>
+</section>
 
-            <table class="wall-table">
-                <thead>
-                    <tr>
-                        <th>Provider</th>
-                        <th>Model</th>
-                        <th>Score</th>
-                        <th>D1</th>
-                        <th>D2</th>
-                        <th>D3</th>
-                        <th>D4</th>
-                        <th>D5</th>
-                        <th>Certification</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Meta</td>
-                        <td style="color:#e1e4e8">Llama-3.1-70B</td>
-                        <td><span class="score-bar" style="width:70px;background:#eab308"></span>70%</td>
-                        <td>100%</td>
-                        <td>75%</td>
-                        <td style="color:#ff4444">33%</td>
-                        <td>67%</td>
-                        <td>67%</td>
-                        <td class="level-conditional">⚠️ CONDITIONAL</td>
-                    </tr>
-                    <tr>
-                        <td>OpenAI</td>
-                        <td style="color:#e1e4e8">GPT-OSS-120B</td>
-                        <td><span class="score-bar" style="width:35px;background:#f97316"></span>35%</td>
-                        <td>67%</td>
-                        <td style="color:#ff4444">12%</td>
-                        <td>67%</td>
-                        <td>33%</td>
-                        <td>33%</td>
-                        <td class="level-noncompliant">❌ NON-COMPLIANT</td>
-                    </tr>
-                    <tr>
-                        <td>Microsoft</td>
-                        <td style="color:#e1e4e8">Phi-3.5-MoE</td>
-                        <td><span class="score-bar" style="width:3px;background:#ff4444"></span>0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td class="level-broken">💀 BROKEN</td>
-                    </tr>
-                    <tr>
-                        <td>Microsoft</td>
-                        <td style="color:#e1e4e8">Phi-4-Multimodal</td>
-                        <td><span class="score-bar" style="width:3px;background:#ff4444"></span>0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td class="level-broken">💀 BROKEN</td>
-                    </tr>
-                    <tr>
-                        <td>Databricks</td>
-                        <td style="color:#e1e4e8">DBRX</td>
-                        <td><span class="score-bar" style="width:3px;background:#ff4444"></span>0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td class="level-broken">💀 BROKEN</td>
-                    </tr>
-                    <tr>
-                        <td>IBM</td>
-                        <td style="color:#e1e4e8">Granite-34B</td>
-                        <td><span class="score-bar" style="width:3px;background:#ff4444"></span>0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td class="level-broken">💀 BROKEN</td>
-                    </tr>
-                    <tr>
-                        <td>Google</td>
-                        <td style="color:#e1e4e8">Gemma-3-12B</td>
-                        <td><span class="score-bar" style="width:3px;background:#ff4444"></span>0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td style="color:#ff4444">0%</td>
-                        <td class="level-broken">💀 BROKEN</td>
-                    </tr>
-                </tbody>
-            </table>
+<!-- Stats -->
+<div class="container">
+<div class="stats-bar">
+  <div class="stat-cell">
+    <span class="num">14.5 &mu;s</span>
+    <span class="label">P50 Latency</span>
+    <span class="sub">per-inference intercept</span>
+  </div>
+  <div class="stat-cell">
+    <span class="num">24</span>
+    <span class="label">CCS Detection Rules</span>
+    <span class="sub">critical &amp; high severity</span>
+  </div>
+  <div class="stat-cell">
+    <span class="num">80K</span>
+    <span class="label">Production Traces</span>
+    <span class="sub">13 providers · 33 models</span>
+  </div>
+  <div class="stat-cell">
+    <span class="num">1,730+</span>
+    <span class="label">Validated Findings</span>
+    <span class="sub">8 frameworks · 7 targets</span>
+  </div>
+</div>
+</div>
 
-            <div class="verdict-box">
-                <div class="verdict-number">0 / 7</div>
-                <div class="verdict-text">Zero models achieved CCS certification.<br><strong style="color:#ff4444">85.7% cannot be used in production agent systems.</strong></div>
-            </div>
-        </div>
-    </section>
+<!-- Features -->
+<section class="features" id="features">
+<div class="container">
+  <div class="section-label"><span class="highlight">Product</span></div>
+  <h2>Three pillars of AI <span class="highlight">Runtime Security</span></h2>
+  <p class="large">From real-time attack interception to compliance-ready audit reports — one unified runtime.</p>
+  <div class="grid">
+    <div class="feature-card">
+      <span class="icon">🛡️</span>
+      <span class="tag tag-perf">14.5µs · P99 99µs</span>
+      <h3>Real-time Attack Interception</h3>
+      <p>Detect and block RCE, SSRF, path traversal, and credential exfiltration at inference time. Sub-15-microsecond overhead that doesn't slow you down.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">📋</span>
+      <span class="tag tag-comp">CCS · SOC2 Ready</span>
+      <h3>CCS Compliance Automation</h3>
+      <p>Generate CCS-standard audit reports automatically. Map every detection to the 24-rule CCS framework. Accelerate SOC2 and ISO 27001 certification with verifiable evidence.</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">🔬</span>
+      <span class="tag tag-bounty">1,730+ Real-world Findings</span>
+      <h3>Bounty-Grade Detection</h3>
+      <p>Detection rules hardened through real bug bounty hunts across CrewAI, AutoGen, LiteLLM, LangGraph, Haystack, and more. What we find in the wild ships as rules.</p>
+    </div>
+  </div>
+</div>
+</section>
 
-    <!-- Scanner Terminal -->
-    <section id="scanner" style="background:#0d1117">
-        <div class="container">
-            <h2>CCS Compliance Scanner</h2>
-            <p class="section-sub">Run the full 5-dimension verification. Get your compliance grade.</p>
+<!-- Vulnerability findings -->
+<section class="features" id="findings">
+<div class="container">
+  <div class="section-label"><span class="highlight">Research</span></div>
+  <h2>Validated across <span class="highlight">8 frameworks</span></h2>
+  <p class="large">Every detection rule is battle-tested against real production frameworks — not synthetic benchmarks.</p>
+  <table class="vuln-table">
+    <thead>
+      <tr><th>Target</th><th>Type</th><th>CVSS</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>CrewAI MCP</td><td>Remote Code Execution</td><td><span class="severity sev-critical">CRITICAL</span></td><td>MSRC Submitted</td></tr>
+      <tr><td>AutoGen Studio</td><td>Remote Code Execution</td><td><span class="severity sev-critical">CRITICAL</span></td><td>ZDI Submitted</td></tr>
+      <tr><td>Docker MCP</td><td>Container Escape + RCE</td><td><span class="severity sev-critical">CRITICAL</span></td><td>GitHub Disclosed</td></tr>
+      <tr><td>LiteLLM</td><td>SSRF via Proxy</td><td><span class="severity sev-high">HIGH</span></td><td>GitHub Disclosed</td></tr>
+      <tr><td>AG2 (AutoGen)</td><td>Pickle Deserialization RCE</td><td><span class="severity sev-critical">CRITICAL</span></td><td>GitHub Disclosed</td></tr>
+      <tr><td>LlamaIndex</td><td>Pickle Deserialization RCE</td><td><span class="severity sev-critical">CRITICAL</span></td><td>GitHub Disclosed</td></tr>
+      <tr><td>Haystack</td><td>Pipeline RCE</td><td><span class="severity sev-critical">CRITICAL</span></td><td>GitHub Disclosed</td></tr>
+    </tbody>
+  </table>
+</div>
+</section>
 
-            <div class="terminal">
-                <div class="terminal-bar">
-                    <div class="dot dot-r"></div>
-                    <div class="dot dot-y"></div>
-                    <div class="dot dot-g"></div>
-                    <span>ccs_scanner — compliance scan</span>
-                </div>
-                <div class="terminal-body">
-<span class="t-dim">$</span> python -m correctover.scan --provider openai
-<br><br>
-<span class="t-blue">══════════════════════════════════════════════════════</span>
-<span class="t-blue">  CCS v1.0 COMPLIANCE REPORT</span>
-<span class="t-blue">  OPENAI / gpt-oss-120b</span>
-<span class="t-blue">══════════════════════════════════════════════════════</span>
-<br>
-  OVERALL SCORE: <span class="t-red">35.0%</span>
-  CERTIFICATION: <span class="t-red">❌ NON_COMPLIANT</span>
-<br>
-  ── 5-Dimension Verification ──────────────────────
-<br>
-  D1 Schema Compliance        █████████████░░░░░░░  <span class="t-yellow">66.7%</span>
-  D2 Arithmetic Integrity     <span class="t-red">██░░░░░░░░░░░░░░░░</span>  <span class="t-red">12.5%</span>
-     └─ SILENT_CORRUPTION: 2+3=6 returned with HTTP 200
-  D3 Factual Grounding        █████████████░░░░░░░  <span class="t-yellow">66.7%</span>
-     └─ HALLUCINATION: Fabricated 2 of 3 paper citations
-  D4 Temporal Consistency     ██████░░░░░░░░░░░░░░  33.3%
-  D5 Output Reproducibility   ██████░░░░░░░░░░░░░░  33.3%
-     └─ NON_DETERMINISTIC: Arithmetic varies between runs
-<br>
-  ── Verdict ───────────────────────────────────────
-<br>
-  <span class="t-red">❌ NON-COMPLIANT: This model CANNOT be used in production</span>
-  <span class="t-red">   agent systems without CCS verification layer.</span>
-                </div>
-            </div>
+<!-- Ecosystem -->
+<section class="section" style="padding: 80px 0; border-bottom: 1px solid var(--border); text-align: center;">
+<div class="container">
+  <div class="section-label"><span class="highlight">Ecosystem</span></div>
+  <h2>Available <span class="highlight">everywhere</span> your AI runs</h2>
+  <p class="large" style="margin:0 auto 24px;">Deploy as a sidecar, SDK, or MCP server. Integrates with any LLM runtime in under a minute.</p>
+  <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-top: 32px;">
+    <span style="padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; color: var(--muted-light);">🤖 MCP Protocol</span>
+    <span style="padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; color: var(--muted-light);">🐍 Python SDK</span>
+    <span style="padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; color: var(--muted-light);">📦 npm Package</span>
+    <span style="padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; color: var(--muted-light);">🐳 Docker</span>
+    <span style="padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; color: var(--muted-light);">⚡ Smithery</span>
+    <span style="padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; color: var(--muted-light);">🏔️ Glama (Official)</span>
+  </div>
+</div>
+</section>
 
-            <div style="text-align:center; margin-top:30px;">
-                <a href="https://github.com/Correctover/correctover.github.io/blob/main/demo/ccs_scanner.py" class="btn btn-ghost">View Scanner Source</a>
-            </div>
-        </div>
-    </section>
+<!-- CTA -->
+<section class="cta-section" id="pricing">
+<div class="container">
+  <div class="section-label"><span class="highlight">Get Started</span></div>
+  <h2>From free trial to <span class="highlight">production-grade</span> protection</h2>
+  <p class="large">Start with a free POC — no credit card required. Upgrade when you need compliance reporting and priority support.</p>
+  <div class="cta-actions">
+    <a href="https://github.com/Correctover/correctover.github.io/blob/main/docs/index.html" class="btn btn-primary">Start Free POC →</a>
+    <a href="https://github.com/Correctover" class="btn btn-outline" target="_blank">Read the Docs</a>
+  </div>
+</div>
+</section>
 
-    <!-- Protocol / Dimensions -->
-    <section id="protocol">
-        <div class="container">
-            <h2>5 Verification Dimensions</h2>
-            <p class="section-sub">Required(τ) ⊆ Supported(τ) — the invariant that defines compliance.</p>
+<!-- Footer -->
+<footer>
+<div class="container">
+  <p style="margin-bottom:4px;">&copy; 2026 Correctover — AI Runtime Security.</p>
+  <p style="font-size:12px;">
+    <a href="https://github.com/Correctover">GitHub</a> ·
+    <a href="https://github.com/Correctover/correctover.github.io/blob/main/docs/index.html">Docs</a> ·
+    <a href="mailto:wangguigui@correctover.com">Contact</a> ·
+    <a href="/disclosures/20260707-llm-verification-failures">Disclosures</a>
+  </p>
+</div>
+</footer>
 
-            <div class="dim-grid">
-                <div class="dim-card">
-                    <div class="dim-label">D1</div>
-                    <h4>Schema</h4>
-                    <p>Does output match required structure?</p>
-                </div>
-                <div class="dim-card">
-                    <div class="dim-label">D2</div>
-                    <h4>Arithmetic</h4>
-                    <p>Does 2+3=5? Silent corruption detection.</p>
-                </div>
-                <div class="dim-card">
-                    <div class="dim-label">D3</div>
-                    <h4>Factual</h4>
-                    <p>Are references real or hallucinated?</p>
-                </div>
-                <div class="dim-card">
-                    <div class="dim-label">D4</div>
-                    <h4>Temporal</h4>
-                    <p>Is the model time-aware? Stale knowledge.</p>
-                </div>
-                <div class="dim-card">
-                    <div class="dim-label">D5</div>
-                    <h4>Reproducibility</h4>
-                    <p>Same input → same output? Determinism.</p>
-                </div>
-            </div>
-
-            <div style="text-align:center; margin-top:40px;">
-                <table class="wall-table" style="max-width:700px; margin:0 auto;">
-                    <thead>
-                        <tr>
-                            <th>Level</th>
-                            <th>Criteria</th>
-                            <th>Production Ready</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="level-certified">✅ CERTIFIED</td>
-                            <td>≥95% across all 5 dimensions</td>
-                            <td style="color:#22c55e">Yes</td>
-                        </tr>
-                        <tr>
-                            <td class="level-conditional">⚠️ CONDITIONAL</td>
-                            <td>70-95%, architectural limitations</td>
-                            <td style="color:#eab308">Only with CCS runtime</td>
-                        </tr>
-                        <tr>
-                            <td class="level-noncompliant">❌ NON-COMPLIANT</td>
-                            <td>&lt;70%, schema violations</td>
-                            <td style="color:#ff4444">No</td>
-                        </tr>
-                        <tr>
-                            <td class="level-broken">💀 BROKEN</td>
-                            <td>0%, fundamental failures</td>
-                            <td style="color:#ff4444">Absolutely not</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </section>
-
-    <!-- Integration -->
-    <section id="integration" style="background:#0d1117">
-        <div class="container">
-            <h2>30-Second Integration</h2>
-            <p class="section-sub">One install. Three lines. Production-ready verification.</p>
-
-            <div class="code-block">
-<span class="kw">from</span> correctover <span class="kw">import</span> CCSValidator
-
-validator = <span class="fn">CCSValidator</span>(
-    required_fields=[<span class="str">"result"</span>, <span class="str">"action"</span>, <span class="str">"timestamp"</span>],
-    forbidden_fields=[<span class="str">"error"</span>, <span class="str">"stack_trace"</span>],
-    enable_integrity=<span class="kw">True</span>
-)
-
-result = validator.<span class="fn">validate</span>(llm_output, trace_id=<span class="str">"agent-001"</span>)
-
-<span class="kw">if not</span> result.is_valid:
-    <span class="kw">raise</span> IntegrityViolation(result.errors)
-
-<span class="cm"># That's it. Your pipeline is now CCS-compliant.</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- Components -->
-    <section>
-        <div class="container">
-            <h2>The 5 Components</h2>
-            <div class="comp-grid">
-                <div class="comp-card">
-                    <h4>CCS-Core</h4>
-                    <p>Schema validation. Required/Supported/Forbidden fields.</p>
-                </div>
-                <div class="comp-card">
-                    <h4>CCS-Compliance</h4>
-                    <p>HIPAA, GDPR, SOC2 regulatory mapping.</p>
-                </div>
-                <div class="comp-card">
-                    <h4>CCS-Cost-Flow</h4>
-                    <p>Token budget enforcement.</p>
-                </div>
-                <div class="comp-card">
-                    <h4>CCS-Integrity</h4>
-                    <p>HMAC-based output binding.</p>
-                </div>
-                <div class="comp-card">
-                    <h4>CCS-Audit</h4>
-                    <p>Immutable audit trails.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="cta-section">
-        <div class="container">
-            <h2>Join the Integrity Movement</h2>
-            <p><strong class="cta-highlight">Q3 Industry Reliability Benchmark — July 11, 2026</strong></p>
-            <p>Frameworks that have not adopted CCS verification protocols will be categorized by their technical risk level.</p>
-            <div class="cta-group">
-                <a href="https://github.com/Correctover/standards" class="btn btn-primary">Documentation & Full Audit Methodology</a>
-                <a href="mailto:wangguigui@correctover.com" class="btn btn-ghost">Get Your Compliance Badge</a>
-            </div>
-        </div>
-    </section>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2026 Correctover. All rights reserved.</p>
-            <p style="margin-top:10px;">
-                <a href="https://github.com/Correctover">GitHub</a>
-                <a href="https://pypi.org/project/correctover/">PyPI</a>
-                <a href="https://www.npmjs.com/package/correctover">npm</a>
-                <a href="https://doi.org/10.5281/zenodo.21234580">DOI</a>
-                <a href="https://correctover.github.io/disclosures/20260707-llm-verification-failures">Disclosures</a>
-            </p>
-            <p style="margin-top:16px; font-style:italic; color:#6b7280;">
-                Correctover doesn't failover. Correctover verifies.
-            </p>
-        </div>
-    </footer>
 </body>
 </html>
