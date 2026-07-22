@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI Agent Security Audit · Correctover — Real-time RCE/SSRF/Credential Protection</title>
+<meta name="description" content="First dedicated AI Agent security audit. Protocol-level vulnerability scanning for MCP/AutoGen/Dify/FastMCP. 24 CCS rules, 87+ verified instances across 8 frameworks.">
+<style>
+:root {
+  --bg: #08080f;
+  --surface: #0d0d1a;
+  --surface2: #111122;
+  --surface3: #161630;
+  --border: #1a1a2e;
+  --border-light: #282848;
+  --text: #e8e8f0;
+  --muted: #606080;
+  --muted-light: #8080a0;
+  --cyan: #00d4b0;
+  --cyan-dim: rgba(0,212,176,0.08);
+  --indigo: #5555dd;
+  --red: #ff4466;
+  --red-dim: rgba(255,68,102,0.08);
+  --amber: #ffaa33;
+  --amber-dim: rgba(255,170,51,0.1);
+  --green: #00d4b0;
+  --radius: 6px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(8,8,15,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+nav {
+  max-width: 1100px; margin: 0 auto; padding: 0 24px;
+  height: 56px; display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-weight: 700; font-size: 18px; color: var(--text); }
+.logo em { font-style: normal; color: var(--cyan); }
+.nav-links { display: flex; gap: 24px; align-items: center; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); text-decoration: none; }
+.nav-links a.active { color: var(--cyan); }
+.nav-links .btn-small {
+  padding: 6px 14px; border-radius: var(--radius); font-size: 13px; font-weight: 600;
+  background: var(--cyan); color: #08080f; transition: opacity 0.15s;
+}
+.container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; border-radius: var(--radius); font-size: 15px; font-weight: 600;
+  text-decoration: none; cursor: pointer; border: none; font-family: inherit;
+  transition: all 0.15s;
+}
+.btn-primary { background: var(--cyan); color: #08080f; }
+.btn-primary:hover { opacity: 0.9; text-decoration: none; }
+.btn-large { padding: 14px 32px; font-size: 17px; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--cyan); text-decoration: none; }
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.hero {
+  padding: 140px 0 60px;
+  border-bottom: 1px solid var(--border);
+  background: radial-gradient(ellipse 80% 40% at 50% 20%, rgba(0,212,176,0.04), transparent);
+}
+.hero .tag {
+  display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--red); margin-bottom: 20px;
+  padding: 6px 14px; border: 1px solid var(--red-dim); border-radius: 20px;
+  background: var(--red-dim);
+}
+.hero h1 {
+  font-size: clamp(32px, 4.5vw, 52px); font-weight: 800; letter-spacing: -1.2px;
+  line-height: 1.15; margin-bottom: 16px; max-width: 850px;
+}
+.hero .subtitle {
+  font-size: 18px; color: var(--muted); max-width: 700px; margin-bottom: 32px; line-height: 1.7;
+}
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-bottom: 40px; }
+.hero .trust-row { display: flex; gap: 32px; flex-wrap: wrap; font-size: 14px; }
+.hero .trust-stat { text-align: center; }
+.hero .trust-stat .num { font-size: 28px; font-weight: 800; color: var(--cyan); display: block; }
+.hero .trust-stat .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+section { padding: 80px 0; }
+section + section { border-top: 1px solid var(--border); }
+h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 16px; }
+h2 .hl { color: var(--cyan); }
+p.desc { color: var(--muted); font-size: 16px; max-width: 650px; margin-bottom: 40px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-top: 32px; }
+@media (max-width: 720px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 28px; }
+.card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.card p { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 0; }
+.card .icon-lg { font-size: 32px; margin-bottom: 12px; display: block; }
+
+.vuln-table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px; }
+.vuln-table th { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+.vuln-table td { padding: 14px 16px; border-bottom: 1px solid var(--border-light); }
+.vuln-table tr:hover td { background: var(--surface2); }
+.vuln-table .cvss { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 13px; }
+.cvss-critical { background: var(--red-dim); color: var(--red); }
+.cvss-high { background: var(--amber-dim); color: var(--amber); }
+
+.framework-warn {
+  background: var(--red-dim); border: 1px solid rgba(255,68,102,0.15); border-radius: var(--radius-lg);
+  padding: 20px 24px; margin: 12px 0;
+}
+.framework-warn h4 { color: var(--red); font-size: 14px; margin-bottom: 4px; }
+.framework-warn p { color: var(--muted); font-size: 13px; margin-bottom: 0; }
+
+.pricing-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-top: 32px; }
+.pricing-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 32px; }
+.pricing-card.featured { border-color: var(--cyan); background: var(--surface2); }
+.pricing-card .plan { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; }
+.pricing-card .price { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
+.pricing-card .price small { font-size: 16px; font-weight: 400; color: var(--muted); }
+.pricing-card .perks { list-style: none; padding: 0; margin-top: 20px; }
+.pricing-card .perks li { padding: 8px 0; border-top: 1px solid var(--border); font-size: 14px; display: flex; gap: 8px; }
+@media (max-width: 720px) { .pricing-row { grid-template-columns: 1fr; } }
+
+.cta-section { padding: 80px 0; text-align: center; border-top: 1px solid var(--border); }
+.cta-section h2 { font-size: 36px; margin-bottom: 12px; }
+.cta-section p { color: var(--muted); font-size: 16px; margin-bottom: 28px; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+footer { border-top: 1px solid var(--border); padding: 32px 0; text-align: center; font-size: 13px; color: var(--muted); }
+footer a { color: var(--muted-light); }
+</style>
+</head>
+<body>
+
+<header>
+<nav>
+  <div class="logo">correct<em>over</em></div>
+  <div class="nav-links">
+    <a href="./">Home</a>
+    <a href="./mcp/">MCP Server</a>
+    <a href="#" class="active">Security Audit</a>
+    <a href="https://github.com/Correctover/mcp-server">GitHub</a>
+    <a href="mailto:wangguigui@correctover.com" class="btn-small">Contact</a>
+  </div>
+</nav>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+<div class="container">
+  <div class="tag">Protocol-Level Vulnerabilities Found — 87 Verified Instances</div>
+  <h1>Your AI Agent stack has a security blind spot.<br>We found it.</h1>
+  <p class="subtitle">First dedicated AI Agent security audit for production deployments. We scan MCP-based agent frameworks for protocol-level, supply-chain vulnerabilities that automated scanners miss. Already submitted to MSRC, HackerOne, and ZDI with confirmed impact.</p>
+  <div class="hero-actions">
+    <a href="mailto:wangguigui@correctover.com?subject=Security%20Audit%20Inquiry&body=I%20want%20a%20Free%20Snapshot%20Audit." class="btn btn-primary btn-large">Request Free Snapshot</a>
+    <a href="#findings" class="btn btn-outline btn-large">See What We Found</a>
+  </div>
+  <div class="trust-row" style="margin-top:24px;">
+    <div class="trust-stat"><span class="num">24</span><span class="label">CCS Rules</span></div>
+    <div class="trust-stat"><span class="num">87</span><span class="label">Verified Vulns</span></div>
+    <div class="trust-stat"><span class="num">8</span><span class="label">Frameworks</span></div>
+    <div class="trust-stat"><span class="num">1,730+</span><span class="label">Findings Across</span></div>
+    <div class="trust-stat"><span class="num">80K</span><span class="label">API Traces</span></div>
+  </div>
+</div>
+</section>
+
+<!-- What We Found -->
+<section id="findings">
+<div class="container">
+  <h2>Verified <span class="hl">findings</span></h2>
+  <p class="desc">All vulnerabilities verified in production code and submitted to bounty channels.</p>
+
+  <table class="vuln-table">
+    <thead>
+      <tr><th>Target</th><th>Type</th><th>CVSS</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>CrewAI MCP</td><td>Remote Code Execution</td><td><span class="cvss cvss-critical">CRITICAL</span></td><td>MSRC Submitted</td></tr>
+      <tr><td>AutoGen Studio</td><td>Remote Code Execution</td><td><span class="cvss cvss-critical">CRITICAL</span></td><td>ZDI Submitted</td></tr>
+      <tr><td>Docker MCP</td><td>Container Escape + RCE</td><td><span class="cvss cvss-critical">CRITICAL</span></td><td>GitHub Disclosed</td></tr>
+      <tr><td>LiteLLM</td><td>SSRF via Proxy</td><td><span class="cvss cvss-high">HIGH</span></td><td>GitHub Disclosed</td></tr>
+      <tr><td>AG2 (AutoGen)</td><td>Pickle Deserialization RCE</td><td><span class="cvss cvss-critical">CRITICAL</span></td><td>GitHub Disclosed</td></tr>
+      <tr><td>LlamaIndex</td><td>Pickle Deserialization RCE</td><td><span class="cvss cvss-critical">CRITICAL</span></td><td>GitHub Disclosed</td></tr>
+      <tr><td>Haystack</td><td>Pipeline RCE</td><td><span class="cvss cvss-critical">CRITICAL</span></td><td>GitHub Disclosed</td></tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<!-- Frameworks Check -->
+<section>
+<div class="container">
+  <h2>Check if you're <span class="hl">affected</span></h2>
+  <p class="desc">If your stack includes any of these, you have known protocol-level vulnerabilities.</p>
+  <div class="grid-2">
+    <div class="framework-warn" style="margin:0;">
+      <h4>AutoGen / Microsoft Agent Framework</h4>
+      <p><strong>Vulnerable:</strong> P1-PATH (CVSS 9.8) + AGT-TOOL-NO-READONLY (CVSS 7.5)<br>
+      <strong>Risk:</strong> Path traversal via --config flag; readOnlyHint never enforced</p>
+    </div>
+    <div class="framework-warn" style="margin:0;border-color:rgba(255,170,51,0.15);background:var(--amber-dim);">
+      <h4 style="color:var(--amber);">Dify Enterprise</h4>
+      <p><strong>Vulnerable:</strong> P1-PATH (CVSS 9.8) + AGT-TOOL-NO-READONLY (CVSS 7.5)<br>
+      <strong>Risk:</strong> Config file path traversal; protocol bypass</p>
+    </div>
+    <div class="framework-warn" style="margin:0;">
+      <h4>FastMCP</h4>
+      <p><strong>Vulnerable:</strong> AGT-TOOL-NO-READONLY (CVSS 7.5) + AGT-ENV-LEAK (CVSS 7.0)<br>
+      <strong>Risk:</strong> 25 verified readOnlyHint bypass locations; full env leaked</p>
+    </div>
+    <div class="framework-warn" style="margin:0;border-color:rgba(255,170,51,0.15);background:var(--amber-dim);">
+      <h4 style="color:var(--amber);">MCP Python SDK</h4>
+      <p><strong>Vulnerable:</strong> AGT-TOOL-NO-READONLY (CVSS 7.5) + AGT-ENV-LEAK (CVSS 7.0)<br>
+      <strong>Risk:</strong> 43 verified readOnlyHint bypass — root cause of supply-chain issue</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- How It Works -->
+<section>
+<div class="container">
+  <h2>How the <span class="hl">audit</span> works</h2>
+  <p class="desc">No source code required. No disruption to production.</p>
+  <div class="grid-3">
+    <div class="card" style="text-align:center;">
+      <span class="icon-lg">1.</span>
+      <h3>Free Snapshot Audit</h3>
+      <p>Share your frameworks and versions. We cross-reference against 24 CCS rules and 87 verified instances. 48-hour report.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <span class="icon-lg">2.</span>
+      <h3>Deep Scan</h3>
+      <p>Full CCS deep scan: protocol-level analysis, dependency chain tracing, and supply-chain impact assessment.</p>
+    </div>
+    <div class="card" style="text-align:center;">
+      <span class="icon-lg">3.</span>
+      <h3>Remediation Plan</h3>
+      <p>Prioritized fix roadmap, code-level patch suggestions, and CISO brief with findings.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- Pricing -->
+<section>
+<div class="container">
+  <h2>Pricing</h2>
+  <div class="pricing-row">
+    <div class="pricing-card">
+      <div class="plan">Free Snapshot</div>
+      <div class="price">$0</div>
+      <p style="font-size:14px;color:var(--muted);">Framework version check against 24 CCS rules. Written summary.</p>
+      <ul class="perks">
+        <li>Framework version scan</li>
+        <li>CCS rule cross-reference</li>
+        <li>Known vulnerability check</li>
+        <li>Written summary report</li>
+        <li>48-hour turnaround</li>
+      </ul>
+      <a href="mailto:wangguigui@correctover.com?subject=Free%20Snapshot%20Audit" class="btn btn-primary" style="margin-top:20px;width:100%;justify-content:center;">Request Free Snapshot</a>
+    </div>
+    <div class="pricing-card featured">
+      <div class="plan">Deep Audit</div>
+      <div class="price">$150 <small>/hr</small></div>
+      <p style="font-size:14px;color:var(--muted);">Full CCS deep scan with CISO-ready report.</p>
+      <ul class="perks">
+        <li>Everything in Free Snapshot</li>
+        <li>Full CCS deep scan</li>
+        <li>Supply-chain dependency audit</li>
+        <li>PoC reproduction for each finding</li>
+        <li>Prioritized fix roadmap</li>
+        <li>1-hour CISO brief</li>
+      </ul>
+      <a href="mailto:wangguigui@correctover.com?subject=Deep%20Security%20Audit" class="btn btn-primary" style="margin-top:20px;width:100%;justify-content:center;">Book Deep Audit</a>
+    </div>
+    <div class="pricing-card">
+      <div class="plan">Retainer</div>
+      <div class="price">Custom</div>
+      <p style="font-size:14px;color:var(--muted);">Continuous monitoring for enterprise teams.</p>
+      <ul class="perks">
+        <li>Quarterly full CCS deep scans</li>
+        <li>Continuous version monitoring</li>
+        <li>New vulnerability alert within 48h</li>
+        <li>Priority PoC and fix roadmap</li>
+        <li>CISO quarterly briefings</li>
+        <li>Emergency response SLA: 24h</li>
+      </ul>
+      <a href="mailto:wangguigui@correctover.com?subject=Security%20Retainer%20Inquiry" class="btn btn-outline" style="margin-top:20px;width:100%;justify-content:center;">Contact Sales</a>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+<div class="container">
+  <h2>Your AI agent stack has <span class="hl">a blind spot</span>.</h2>
+  <p>Free snapshot audit — 48 hours, no commitment, no code access needed.</p>
+  <a href="mailto:wangguigui@correctover.com?subject=Free%20Snapshot%20Audit%20Request" class="btn btn-primary btn-large">Request Free Snapshot</a>
+</div>
+</section>
+
+<footer>
+<div class="container">
+  <p>Correctover &mdash; AI Runtime Security &middot; <a href="./">Home</a> &middot; <a href="./mcp/">MCP Server</a> &middot; <a href="mailto:wangguigui@correctover.com">Contact</a></p>
+  <p style="margin-top:8px;font-size:12px;color:var(--muted-light);">Findings based on open-source code analysis. MSRC, H1, ZDI are independent disclosure platforms.</p>
+</div>
+</footer>
+</body>
+</html>
