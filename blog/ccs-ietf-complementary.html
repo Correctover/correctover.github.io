@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCS与IETF Agent通信标准的关系 - Correctover</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.6;max-width:800px;margin:0 auto;padding:20px;color:#333}
+h1{color:#2c3e50;border-bottom:2px solid #3498db;padding-bottom:10px}
+h2{color:#34495e;margin-top:30px}
+h3{color:#7f8c8d}
+code{background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:"Courier New",monospace}
+strong{color:#2c3e50}
+a{color:#3498db;text-decoration:none}
+a:hover{text-decoration:underline}
+.meta{color:#95a5a6;font-size:0.9em;margin-bottom:30px}
+</style>
+</head>
+<body>
+<h1>CCS与IETF Agent通信标准的关系</h1>
+<div class="meta">发布于 2026-07-23 | Correctover Research Group</div>
+
+<h2>引言</h2>
+<p>2026年7月，IETF 126 Vienna会议正在审议5个AI Agent通信协议（MCP、A2A、ACP、ANP、Cisco Agntcy），计划在2-3年内产出RFC标准。这引发了一个问题：<strong>CCS作为Agent运行时一致性验证标准，与这些通信标准是什么关系？</strong></p>
+<p>答案很清晰：<strong>互补而非竞争。它们解决不同架构层的问题。</strong></p>
+
+<h2>分层架构：通信层 vs 验证层</h2>
+<h3>IETF标准解决什么？</h3>
+<p>IETF正在制定的Agent协议关注<strong>通信层</strong>：</p>
+<ul>
+<li><strong>MCP</strong>（9700万月下载）：agent如何连接工具和数据（client-server层）</li>
+<li><strong>A2A</strong>（150组织支持）：agent如何发现彼此并委托任务（peer-to-peer层）</li>
+<li><strong>ACP/ANP/Agntcy</strong>：agent间通信、网络、编排</li>
+</ul>
+<p>核心问题：<strong>agent之间怎么对话？</strong></p>
+
+<h3>CCS解决什么？</h3>
+<p>CCS v1.0关注<strong>验证层</strong>：</p>
+<ul>
+<li>六维运行时验证契约（结构、模式、延迟、成本、身份、完整性）</li>
+<li>静默失败检测（标准Failover检测率0%，CCS 100%）</li>
+<li>Fail-Closed保证（治理失败时工具永不执行）</li>
+<li>可验证性收据（满足欧盟AI法案、NIST、ISO 42001合规要求）</li>
+</ul>
+<p>核心问题：<strong>对话结果是否可信？</strong></p>
+
+<h3>为什么两者都需要？</h3>
+<p><strong>没有验证层的通信标准是不完整的。</strong></p>
+<p>场景：Agent A通过A2A协议发现Agent B，委托其执行金融风控分析。A2A解决了"怎么找到B"和"怎么委托"，但<strong>没有解决</strong>：</p>
+<ul>
+<li>B的输出是否符合预定义的schema？</li>
+<li>B是否真的调用了声称的模型（还是悄悄降级了）？</li>
+<li>B的响应延迟是否在SLA范围内？</li>
+<li>如果B的治理层抛出异常，工具是否还会执行？</li>
+</ul>
+<p>这些问题由CCS的六维验证契约解决。<strong>通信层保证agent能对话，验证层保证对话结果可信。</strong></p>
+
+<h2>技术互补性</h2>
+<h3>1. MCP + CCS</h3>
+<p>MCP标准化agent与工具的连接。CCS验证工具调用结果的正确性。</p>
+<p><strong>示例</strong>：Agent通过MCP调用数据库查询工具。MCP保证连接建立，CCS保证：</p>
+<ul>
+<li>查询结果符合预期schema（结构验证）</li>
+<li>响应时间&lt;200ms（延迟验证）</li>
+<li>查询成本&lt;$0.01（成本验证）</li>
+<li>如果验证失败，Fail-Closed阻止后续流程（不会基于错误数据决策）</li>
+</ul>
+
+<h3>2. A2A + CCS</h3>
+<p>A2A标准化agent间的任务委托。CCS验证委托结果的可信度。</p>
+<p><strong>示例</strong>：Agent A通过A2A委托Agent B执行代码审查。A2A保证任务传递，CCS保证：</p>
+<ul>
+<li>B的审查报告符合预定义格式（结构验证）</li>
+<li>B使用的模型与声称一致（身份验证，防止静默降级）</li>
+<li>B的响应完整性（HMAC校验，防止篡改）</li>
+<li>生成可验证性收据（满足合规审计要求）</li>
+</ul>
+
+<h3>3. IETF关注的安全缺口 + CCS</h3>
+<p>IETF Rosenberg-Jennings框架识别的安全问题：</p>
+<ul>
+<li><strong>跨域身份联邦</strong>：agent如何证明授权？→ CCS的身份验证层</li>
+<li><strong>多跳生命周期管理</strong>：链条中某节点失败怎么办？→ CCS的Failover+验证</li>
+<li><strong>用户确认机制</strong>：不可逆操作前确认？→ CCS的治理层拦截</li>
+<li><strong>协议级安全归因</strong>：事件发生后追溯？→ CCS的审计收据</li>
+</ul>
+<p><strong>CCS填补了IETF标准未涉及的运行时验证层。</strong></p>
+
+<h2>性能不影响通信层</h2>
+<p>CCS的验证开销极低：</p>
+<ul>
+<li><strong>P50延迟</strong>：22微秒（0.022毫秒）</li>
+<li><strong>P99延迟</strong>：0.22毫秒</li>
+<li><strong>吞吐量</strong>：769万ops/秒</li>
+</ul>
+<p>相比MCP/A2A的通信延迟（通常数十毫秒），CCS的22µs验证开销<strong>可以忽略不计</strong>。通信层和验证层可以并行工作，不互相阻塞。</p>
+
+<h2>合规刚需</h2>
+<p>欧盟AI法案Title III要求高风险AI系统提供"可证明的风险控制"。NIST AI RMF要求"可测量的安全保障"。ISO/IEC 42001要求"可审计的合规证据"。</p>
+<p><strong>没有运行时验证层，任何Agent通信标准都无法满足这些合规要求。</strong></p>
+<p>CCS的可验证性收据提供了合规审计所需的技术证据：</p>
+<ul>
+<li>每次LLM调用生成六维验证收据</li>
+<li>失败路径自动记录（97.4%自愈率）</li>
+<li>完整的审计链（从输入到输出）</li>
+</ul>
+
+<h2>结论</h2>
+<p>CCS与IETF正在制定的Agent通信标准<strong>不是竞争关系，而是分层互补</strong>：</p>
+<ul>
+<li><strong>IETF标准</strong>：解决agent之间怎么通信（发现、调用、委托）</li>
+<li><strong>CCS</strong>：解决通信结果是否可信（验证、审计、合规）</li>
+</ul>
+<p>完整的Agent基础设施需要两层：</p>
+<ol>
+<li><strong>通信层</strong>（MCP/A2A/...）：让agent能对话</li>
+<li><strong>验证层</strong>（CCS）：让对话结果可信</li>
+</ol>
+<p><strong>没有验证层的通信标准，就像没有TLS的HTTP——能传输数据，但不可信。</strong></p>
+<p>CCS的目标不是替代MCP或A2A，而是作为验证层与它们协同工作，共同构建可信的Agent基础设施。</p>
+
+<hr>
+<p><strong>参考资料</strong>：</p>
+<ul>
+<li>CCS v1.0协议：<a href="https://doi.org/10.5281/zenodo.21234580">DOI 10.5281/zenodo.21234580</a></li>
+<li>IETF 126 Vienna会议：<a href="https://www.ietf.org/how/meetings/126/">https://www.ietf.org/how/meetings/126/</a></li>
+<li>MCP：<a href="https://modelcontextprotocol.io">https://modelcontextprotocol.io</a></li>
+<li>A2A：<a href="https://github.com/google/A2A">https://github.com/google/A2A</a></li>
+<li>欧盟AI法案：<a href="https://artificialintelligenceact.eu">https://artificialintelligenceact.eu</a></li>
+</ul>
+</body>
+</html>
